@@ -1,16 +1,33 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {View, FlatList, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Student from '../../components/student';
 import {useIsFocused} from '@react-navigation/native';
+import AuthContext from '../../AuthContext/AuthContext';
+import firestore from '@react-native-firebase/firestore';
 
 const StudentPage = ({navigation}) => {
+  const {user} = useContext(AuthContext);
   const [students, setStudents] = useState([]);
+  const [fetchedData, setFetchedData] = useState(false);
   const isFocused = useIsFocused();
 
   useEffect(() => {
     loadStudents();
-  }, [isFocused]);
+    dataAvailableCheck(user?.id);
+  }, [isFocused, user]);
+
+  const dataAvailableCheck = async user => {
+    const collectionRef = await firestore()
+      .collection('students')
+      .doc(user)
+      .get();
+
+    let fetchedStudentsData = await collectionRef?.data().students;
+    if (fetchedStudentsData.length > 0) {
+      setFetchedData(true);
+    }
+  };
 
   const loadStudents = async () => {
     try {
@@ -62,9 +79,27 @@ const StudentPage = ({navigation}) => {
     </View>
   );
 
-  const handleBackupFunc = () => {
-    console.log(students);
-    navigation.navigate('Backup');
+  const handleDataBackup = async user => {
+    const collectionRef = firestore().collection('students');
+    collectionRef.doc(user).set({students});
+  };
+
+  const handleDataRetrieve = async user => {
+    const collectionRef = await firestore()
+      .collection('students')
+      .doc(user)
+      .get();
+
+    let fetchedStudentsData = await collectionRef?.data().students;
+
+    let combinedStudentDetails = await fetchedStudentsData.concat(students);
+
+    await AsyncStorage.setItem(
+      'students',
+      JSON.stringify(combinedStudentDetails),
+    );
+
+    setStudents(combinedStudentDetails);
   };
 
   return (
@@ -90,11 +125,27 @@ const StudentPage = ({navigation}) => {
           style={[styles.touchables, {backgroundColor: '#0e4377'}]}>
           <Text style={{color: '#fff', fontSize: 16}}>+ Student</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity
-          onPress={handleBackupFunc}
-          style={[styles.touchables, {backgroundColor: '#0E9C9B', flex: 0.3}]}>
+        <TouchableOpacity
+          disabled={!students.length > 0}
+          onPress={() => handleDataBackup(user.id)}
+          style={[
+            styles.touchables,
+            {
+              backgroundColor: students.length > 0 ? '#0E9C9B' : '#d2d2d4',
+              flex: 0.3,
+            },
+          ]}>
           <Text style={{color: '#fff', fontSize: 16}}>Backup</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={!fetchedData}
+          onPress={() => handleDataRetrieve(user.id)}
+          style={[
+            styles.touchables,
+            {backgroundColor: fetchedData ? '#0E9C9B' : '#d2d2d4', flex: 0.3},
+          ]}>
+          <Text style={{color: '#fff', fontSize: 16}}>Retrieve</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

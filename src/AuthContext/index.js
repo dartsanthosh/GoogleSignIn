@@ -9,7 +9,7 @@ const AuthProvider = ({children}) => {
   useEffect(() => {
     const loadToken = async () => {
       let userDetails = await AsyncStorage.getItem('@user');
-      setuser(userDetails);
+      setuser(JSON.parse(userDetails));
       setLoading(false);
     };
 
