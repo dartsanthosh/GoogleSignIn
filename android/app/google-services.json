@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "463087669112",
+    "firebase_url": "https://ysquare-task-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ysquare-task",
+    "storage_bucket": "ysquare-task.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463087669112:android:a741d2c94e5dacf49b428d",
+        "android_client_info": {
+          "package_name": "com.googlesignin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxb_GlFu48DbDpB3GwAlQphFfgxtsW71o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
